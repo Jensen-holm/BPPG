@@ -1,48 +1,22 @@
-from flask import Flask, request, jsonify, Response
-from flask_cors import CORS
-from nn.nn import NN
-from nn import train as train_nn
-from nn import activation
-import pandas as pd
-import io
+import tkinter as tk
+import customtkinter as ctk
 
-app = Flask(__name__)
+ctk.set_appearance_mode("system")
 
-CORS(app, origins="*")
+root = ctk.CTk()
+root.geometry("800x600")
+root.title("Backprop Playground")
 
+button = ctk.CTkButton(
+    master=root,
+    text="train",
+)
 
-@app.route("/neural-network", methods=["POST"])
-def neural_net():
-    args = request.json
-
-    try:
-        net = NN.from_dict(args)
-    except Exception as e:
-        return Response(
-            response=f"issue with request args: {e}",
-            status=400,
-        )
-
-    try:
-        df = pd.read_csv(io.StringIO(net.data))
-        net.set_df(df=df)
-    except Exception as e:
-        return Response(
-            response=f"error reading csv data: {e}",
-            status=400,
-        )
-
-    try:
-        activation.get_activation(nn=net)
-    except Exception:
-        return Response(
-            response="invalid activation function",
-            status=400,
-        )
-
-    result = train_nn.train(nn=net)
-    return jsonify(result)
-
+button.place(
+    relx=0.5,
+    rely=0.5,
+    anchor=tk.CENTER,
+)
 
 if __name__ == "__main__":
-    app.run()
+    root.mainloop()
