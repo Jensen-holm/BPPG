@@ -26,17 +26,6 @@ ARGS = {
     "features": [],  # will be a list of strings
 }
 
-# drawer for csv selection of already uploaded files
-csv_drawer = tk.PanedWindow(
-    master=root,
-    orient=tk.VERTICAL,
-)
-csv_drawer.place(
-    relx=0,
-    rely=0.5,
-    anchor=tk.W,
-)
-
 
 upload = Image.open("assets/upload.png")
 upload_img = ctk.CTkImage(
@@ -57,7 +46,7 @@ def upload_file():
         # save the dataset as a csv for later use
         save_dir = os.path.join(os.getcwd(), "data")
         os.makedirs(save_dir, exist_ok=True)  # ensure 'data' folder exists
-        save_path = os.path.join(save_dir, file.name)
+        save_path = os.path.join(save_dir, os.path.basename(file.name))
         df.to_csv(save_path)
 
         # once data is successfully uploaded,
