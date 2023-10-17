@@ -37,7 +37,8 @@ right_frame.grid(row=0, column=1, sticky="nsew")
 
 # place logo in center
 # right now this picture is too small
-logo = Image.open(os.path.join(os.getcwd(), "assets/backprop_playground.png"))
+logo_path = os.path.join("assets", "backprop_playground.png")
+logo = Image.open(logo_path)
 logo_img = ctk.CTkImage(
     light_image=logo,
     dark_image=logo,
@@ -106,7 +107,8 @@ def upload_file():
         raise e
 
 
-upload = Image.open(os.path.join(os.getcwd(), "assets/upload.png"))
+upload_img_path = os.path.join("assets", "upload.png")
+upload = Image.open(upload_img_path)
 upload_img = ctk.CTkImage(
     light_image=upload,
     dark_image=upload,
