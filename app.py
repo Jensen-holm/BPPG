@@ -16,7 +16,6 @@ root.minsize(600, 400)
 
 # global variables set by buttons
 # here we are defining defaults
-global ARGS
 ARGS = {
     "data": None,  # will be a pandas dataframe
     "test_size": 0.2,  # will always be positive float
@@ -37,7 +36,8 @@ right_frame.grid(row=0, column=1, sticky="nsew")
 
 # place logo in center
 # right now this picture is too small
-logo_path = os.path.join("assets", "backprop_playground.png")
+base_dir = os.path.dirname(__file__)
+logo_path = os.path.join(base_dir, "assets/backprop_playground.png")
 logo = Image.open(logo_path)
 logo_img = ctk.CTkImage(
     light_image=logo,
@@ -107,7 +107,7 @@ def upload_file():
         raise e
 
 
-upload_img_path = os.path.join("assets", "upload.png")
+upload_img_path = os.path.join(base_dir, "assets/upload.png")
 upload = Image.open(upload_img_path)
 upload_img = ctk.CTkImage(
     light_image=upload,
