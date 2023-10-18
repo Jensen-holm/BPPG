@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import customtkinter as ctk
 import pandas as pd
+from PIL import Image
 import os
 
 ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
@@ -18,6 +19,20 @@ ARGS = {
     "target": "", # string that's in data cols 
     "data": None, # pandas data frame
 }
+
+# loading images
+upload = Image.open(os.path.join(BASE_DIR, "assets/upload.png"))
+logo = Image.open(os.path.join(BASE_DIR, "assets/backprop_playground.png"))
+
+LOGO_IMG = ctk.CTkImage(
+    light_image=logo,
+    dark_image=logo,
+)
+
+UPLOAD_IMG = ctk.CTkImage(
+    light_image=upload,
+    dark_image=upload,
+)
 
 
 class App(ctk.CTk):
@@ -54,16 +69,35 @@ class App(ctk.CTk):
 
     def build_csv_upload_sidebar(self):
         self.sidebar_frame = ctk.CTkFrame(
-            self, width=140, 
+            self, 
+            width=140, 
             corner_radius=0,
         )
         self.sidebar_frame.grid(
             row=0,
             column=0,
-            rowspan=len(self.csvs),
+            rowspan=len(self.csvs)+1,
             sticky="nsew",
         )
         self.sidebar_frame.rowconfigure(4, weight=1)
+        self.upload_label = ctk.CTkLabel(
+            self.sidebar_frame,
+            text="Load CSV",
+            font=("Consolas", 16),
+        )
+        self.upload_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+
+        # upload new csv button
+        self.upload_new_csv = ctk.CTkButton(
+            master=self.sidebar_frame,
+            command=self.upload_new_csv,
+            image=UPLOAD_IMG, 
+        )
+        self.upload_new_csv.grid(row=1, column=0, padx=20, pady=(20, 10))
+
+    
+    def upload_new_csv(self):
+        ...
 
 
 
