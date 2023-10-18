@@ -6,8 +6,6 @@ Usage:
 """
 
 from setuptools import setup
-from app import is_csv_file
-import os
 
 APP = ["app.py"]
 

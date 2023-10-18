@@ -96,10 +96,35 @@ class App(ctk.CTk):
         self.upload_new_csv.grid(row=1, column=0, padx=20, pady=(20, 10))
 
     
-    def upload_new_csv(self):
-        ...
+    def upload_new_csv(self) -> None:
+        file = ctk.filedialog.askopenfile()
+        if not file:
+            return
+        
+        if not self.is_csv_file(f_name=file.name):
+            ext = os.path.splitext(file.name)[-1]
+            messagebox.showerror(
+                title="Invalid File Type",
+                message=f"You tried uploading a \"{ext}\" file but only CSV files are allowed",
+            )
+            return
+        
+        try: # try to read the csv file & save it to /data...
+            df = pd.read_csv(file)
+            ARGS["data"] = df
 
+            save_dir = os.path.join(os.getcwd(), "data")
+            os.makedirs(save_dir, exist_ok=True)  # ensure 'data' folder exists
+            save_path = os.path.join(save_dir, os.path.basename(file.name))
+            df.to_csv(save_path)
+            return
 
+        except Exception as e:
+            messagebox.showerror(
+                title="CSV Reader Error",
+                message=e, # might want to make this more readable in the future
+            )
+            return
 
 
 if __name__ == "__main__":
