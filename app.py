@@ -86,6 +86,7 @@ class App(ctk.CTk):
         self.sidebar_frame = ctk.CTkScrollableFrame(
             self, 
             width=250, 
+            height=len(self.csvs) * 5,
             corner_radius=0,
         )
         self.sidebar_frame.grid(
@@ -116,7 +117,7 @@ class App(ctk.CTk):
             i += 2
             label = ctk.CTkLabel(
                 master=self.sidebar_frame,
-                text=csv,
+                text=f"{csv[:10]}...",
             )
             label.grid(row=i, column=0, padx=2)
 
@@ -149,7 +150,6 @@ class App(ctk.CTk):
         try:
             df = pd.read_csv(filename)
             ARGS["data"] = df
-            print(df.head())
             self.update()
             return 
         except Exception as e:
@@ -162,7 +162,7 @@ class App(ctk.CTk):
     def remove_csv(self, filename) -> None:
         filepath = os.path.join(DATA_DIR, filename)
         os.remove(filepath)
-        self.update()
+        self.build_csv_upload_sidebar()
         return
 
     
@@ -184,8 +184,7 @@ class App(ctk.CTk):
             self.save_data(df, name=file.name)
             # if all was successful, use it!
             ARGS["data"] = df
-            print(ARGS["data"])
-            self.update()
+            self.build_csv_upload_sidebar()
             return
 
         except Exception as e:
