@@ -5,10 +5,12 @@ import pandas as pd
 from PIL import Image
 import os
 
-ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
-ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
+ctk.set_appearance_mode("System")
+ctk.set_default_color_theme("dark-blue")
 
 BASE_DIR = os.path.dirname(__file__)
+DATA_DIR = os.path.join(BASE_DIR, "data")
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 ARGS = {
     "epochs": 1000, # int greater than 1 
     "hidden_size": 8, # positive even int
@@ -21,8 +23,10 @@ ARGS = {
 }
 
 # loading images
-upload = Image.open(os.path.join(BASE_DIR, "assets/upload.png"))
-logo = Image.open(os.path.join(BASE_DIR, "assets/backprop_playground.png"))
+upload = Image.open(os.path.join(ASSETS_DIR, "upload.png"))
+logo = Image.open(os.path.join(ASSETS_DIR, "backprop_playground.png"))
+plus = Image.open(os.path.join(ASSETS_DIR, "plus.png"))
+minus = Image.open(os.path.join(ASSETS_DIR, "minus.png"))
 
 LOGO_IMG = ctk.CTkImage(
     light_image=logo,
@@ -32,6 +36,16 @@ LOGO_IMG = ctk.CTkImage(
 UPLOAD_IMG = ctk.CTkImage(
     light_image=upload,
     dark_image=upload,
+)
+
+PLUS = ctk.CTkImage(
+    light_image=plus,
+    dark_image=plus,
+)
+
+MINUS = ctk.CTkImage(
+    light_image=minus,
+    dark_image=minus,
 )
 
 
@@ -68,18 +82,18 @@ class App(ctk.CTk):
         return file_extension.lower() == ".csv"
 
     def build_csv_upload_sidebar(self):
-        self.sidebar_frame = ctk.CTkFrame(
+        self.sidebar_frame = ctk.CTkScrollableFrame(
             self, 
-            width=140, 
+            width=250, 
             corner_radius=0,
         )
         self.sidebar_frame.grid(
             row=0,
             column=0,
-            rowspan=len(self.csvs)+1,
+            rowspan=len(self.csvs)+2, # + 1 for label and 1 for new file btn
             sticky="nsew",
         )
-        self.sidebar_frame.rowconfigure(4, weight=1)
+        self.sidebar_frame.rowconfigure(len(self.csvs), weight=1)
         self.upload_label = ctk.CTkLabel(
             self.sidebar_frame,
             text="Load CSV",
@@ -91,9 +105,62 @@ class App(ctk.CTk):
         self.upload_new_csv = ctk.CTkButton(
             master=self.sidebar_frame,
             command=self.upload_new_csv,
-            image=UPLOAD_IMG, 
+            image=PLUS,
+            text="Upload New CSV",
         )
         self.upload_new_csv.grid(row=1, column=0, padx=20, pady=(20, 10))
+
+        # make 2 buttons for each csv, load() and remove()
+        for i, csv in enumerate(self.csvs):
+            i += 2
+
+            # label
+            label = ctk.CTkLabel(
+                master=self.sidebar_frame,
+                text=csv,
+            )
+            label.grid(row=i, column=0, padx=2)
+
+            load = ctk.CTkButton(
+                master=self.sidebar_frame,
+                text="",
+                width=0,
+                height=0,
+                image=UPLOAD_IMG,
+                command=lambda c=csv: self.use_csv(
+                    filename=os.path.join(DATA_DIR, c),
+                ),
+            )
+            load.grid(row=i, column=1, padx=2)
+
+            remove = ctk.CTkButton(
+                master=self.sidebar_frame,
+                text="",
+                width=0,
+                height=0,
+                image=MINUS,
+                command=lambda c=csv: self.remove_csv(
+                    filename=os.path.join(DATA_DIR, c),
+                ),
+            )
+            remove.grid(row=i, column=2)
+
+    # for using existing csv files
+    def use_csv(self, filename: str):
+        try:
+            df = pd.read_csv(filename)
+            ARGS["data"] = df
+            return 
+        except Exception as e:
+            messagebox.showerror(
+                title="CSV Reader Error",
+                message=f"{e}",
+            )
+            return
+
+    def remove_csv(self, filename):
+        filepath = os.path.join(DATA_DIR, filename)
+        os.rmdir(filepath)
 
     
     def upload_new_csv(self) -> None:
@@ -111,12 +178,14 @@ class App(ctk.CTk):
         
         try: # try to read the csv file & save it to /data...
             df = pd.read_csv(file)
-            ARGS["data"] = df
 
             save_dir = os.path.join(os.getcwd(), "data")
             os.makedirs(save_dir, exist_ok=True)  # ensure 'data' folder exists
             save_path = os.path.join(save_dir, os.path.basename(file.name))
             df.to_csv(save_path)
+
+            # if all was successful, use it!
+            ARGS["data"] = df
             return
 
         except Exception as e:
