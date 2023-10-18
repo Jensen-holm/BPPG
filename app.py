@@ -11,16 +11,6 @@ ctk.set_default_color_theme("dark-blue")
 BASE_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(BASE_DIR, "data")
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
-ARGS = {
-    "epochs": 1000, # int greater than 1 
-    "hidden_size": 8, # positive even int
-    "learning_rate": 0.01, # float between 0 and 1
-    "test_size": 0.2, # float between 0 and 1
-    "activation": "relu", # string that'll be mapped to func
-    "features": [], # list of strings in data cols
-    "target": "", # string that's in data cols 
-    "data": None, # pandas data frame
-}
 
 # loading images
 upload = Image.open(os.path.join(ASSETS_DIR, "upload.png"))
@@ -53,6 +43,18 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+
+        self.ARGS = {
+            "epochs": 1000, # int greater than 1 
+            "hidden_size": 8, # positive even int
+            "learning_rate": 0.01, # float between 0 and 1
+            "test_size": 0.2, # float between 0 and 1
+            "activation": "relu", # string that'll be mapped to func
+            "features": [], # list of strings in data cols
+            "target": "", # string that's in data cols 
+            "data": None, # pandas data frame
+        }
+
         # configure window
         self.title("Backprop Playground")
         self.geometry(f"{1100}x{580}")
@@ -66,6 +68,12 @@ class App(ctk.CTk):
 
         self.csvs = self.csv_files()
         self.build_csv_upload_sidebar()
+
+        self.test_button = ctk.CTkButton(
+            master=self,
+            command=lambda:print(self.ARGS),
+        )
+        self.test_button.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
 
     """ CSV upload side bar """
@@ -149,7 +157,7 @@ class App(ctk.CTk):
     def use_csv(self, filename: str):
         try:
             df = pd.read_csv(filename)
-            ARGS["data"] = df
+            self.ARGS["data"] = df
             self.update()
             return 
         except Exception as e:
@@ -183,8 +191,8 @@ class App(ctk.CTk):
             df = pd.read_csv(file)
             self.save_data(df, name=file.name)
             # if all was successful, use it!
-            ARGS["data"] = df
-            self.build_csv_upload_sidebar()
+            self.ARGS["data"] = df
+            self.update()
             return
 
         except Exception as e:
