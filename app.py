@@ -1,145 +1,73 @@
 import tkinter as tk
 from tkinter import messagebox
 import customtkinter as ctk
-from PIL import Image
-import os
 import pandas as pd
+import os
 
-ctk.set_appearance_mode("system")
+ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
+ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
-
-root = ctk.CTk()
-root.geometry("800x600")
-root.title("Backprop Playground")
-root.minsize(600, 400)
-
-
-# global variables set by buttons
-# here we are defining defaults
+BASE_DIR = os.path.dirname(__file__)
 ARGS = {
-    "data": None,  # will be a pandas dataframe
-    "test_size": 0.2,  # will always be positive float
-    "hidden_size": 8,  # will always be EVEN integer
-    "epochs": 1000,  # will always be positive integer
-    "target": "",  # will be a string
-    "features": [],  # will be a list of strings
+    "epochs": 1000, # int greater than 1 
+    "hidden_size": 8, # positive even int
+    "learning_rate": 0.01, # float between 0 and 1
+    "test_size": 0.2, # float between 0 and 1
+    "activation": "relu", # string that'll be mapped to func
+    "features": [], # list of strings in data cols
+    "target": "", # string that's in data cols 
+    "data": None, # pandas data frame
 }
 
-# csv upload pane
-# Create a frame for the left pane
-left_frame = tk.Frame(root)
-left_frame.grid(row=0, column=0, sticky="nsew")
 
-# Create a frame for the right pane
-right_frame = tk.Frame(root)
-right_frame.grid(row=0, column=1, sticky="nsew")
+class App(ctk.CTk):
+    def __init__(self):
+        super().__init__()
 
-# place logo in center
-# right now this picture is too small
-base_dir = os.path.dirname(__file__)
-logo_path = os.path.join(base_dir, "assets/backprop_playground.png")
-logo = Image.open(logo_path)
-logo_img = ctk.CTkImage(
-    light_image=logo,
-    dark_image=logo,
-)
-logo_label = ctk.CTkLabel(
-    master=root,
-    image=logo_img,
-    text="",
-)
-logo_label.place(
-    relx=0.5,
-    rely=0.5,
-    anchor=tk.CENTER,
-)
+        # configure window
+        self.title("Backprop Playground")
+        self.geometry(f"{1100}x{580}")
+        self.minsize(width=600, height=300)
+
+        # configure grid layout (4x4)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure((2, 3), weight=0)
+        self.grid_rowconfigure((0, 1, 2), weight=1)
+
+        self.csvs = self.csv_files()
+        self.build_csv_upload_sidebar()
 
 
-def is_csv_file(file_path):
-    # Check if the file extension is ".csv"
-    file_extension = os.path.splitext(file_path)[-1]
-    return file_extension.lower() == ".csv"
+    """ CSV upload side bar """
+    def csv_files(self):
+        data_path = os.path.join(BASE_DIR, "data")
+        csvs = []
+        for f in os.listdir(data_path):
+            if self.is_csv_file(f):
+                csvs.append(f)
+        return csvs
 
+    @staticmethod
+    def is_csv_file(f_name: str) -> bool:
+        file_extension = os.path.splitext(f_name)[-1]
+        return file_extension.lower() == ".csv"
 
-def csv_files():
-    data_path = os.path.join(os.getcwd(), "data")
-    csvs = []
-    for f in os.listdir(data_path):
-        if is_csv_file(f):
-            csvs.append(f)
-    return csvs
-
-
-def upload_file():
-    global data
-    # eventually we will want to save datasets
-    # into the application and be able to select
-    # previous datasets as well
-    file = ctk.filedialog.askopenfile()
-    try:
-        if not file:
-            # if user didnt upload anything
-            # I don't want to show error
-            return
-
-        if not is_csv_file(file.name):
-            ext = os.path.splitext(file)[-1]
-            messagebox.showerror(
-                title="Invalid file type",
-                message=f"please upload a CSV file. not a '{ext}'",
-            )
-
-        df = pd.read_csv(file)
-        ARGS["data"] = file
-        # save the dataset as a csv for later use
-        save_dir = os.path.join(os.getcwd(), "data")
-        os.makedirs(save_dir, exist_ok=True)  # ensure 'data' folder exists
-        save_path = os.path.join(save_dir, os.path.basename(file.name))
-        df.to_csv(save_path)
-
-        # open training window once the data is uploaded
-        open_training_window()
-    except Exception as e:
-        messagebox.showerror(
-            title="CSV Error",
-            message=f"{e}",
+    def build_csv_upload_sidebar(self):
+        self.sidebar_frame = ctk.CTkFrame(
+            self, width=140, 
+            corner_radius=0,
         )
-        raise e
+        self.sidebar_frame.grid(
+            row=0,
+            column=0,
+            rowspan=len(self.csvs),
+            sticky="nsew",
+        )
+        self.sidebar_frame.rowconfigure(4, weight=1)
 
 
-upload_img_path = os.path.join(base_dir, "assets/upload.png")
-upload = Image.open(upload_img_path)
-upload_img = ctk.CTkImage(
-    light_image=upload,
-    dark_image=upload,
-)
-
-upload_csv_button = ctk.CTkButton(
-    text="Upload CSV",
-    image=upload_img,
-    master=left_frame,
-    command=upload_file,
-    font=("Consolas", 16),
-)
-upload_csv_button.pack(
-    padx=10,
-    pady=10,
-)
-
-
-# for when the user successfully uploads or selects
-# a valid csv dataset for their neural network
-def open_training_window():
-    # Clear the current widgets in the root window
-    # destroy everyting except for the upload data pane
-    for widget in right_frame.winfo_children():
-        widget.destroy()
-
-    for widget in root.winfo_children():
-        widget.destroy()
-
-    # add grid for hyper tuning neural network parameters
 
 
 if __name__ == "__main__":
-    root.mainloop()
+    app = App()
+    app.mainloop()

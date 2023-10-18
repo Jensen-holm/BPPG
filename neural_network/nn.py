@@ -13,7 +13,7 @@ class NN:
         activation: str,
         features: list[str],
         target: str,
-        data: str,
+        data: pd.DataFrame,
     ):
         self.epochs = epochs
         self.hidden_size = hidden_size

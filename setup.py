@@ -11,8 +11,7 @@ import os
 
 APP = ["app.py"]
 
-DATA_FILES = [os.path.join("data", f) for f in os.listdir("data") if is_csv_file(f)] + \
-        ["assets"]
+DATA_FILES = ["assets", "data"]
 
 OPTIONS = {
     'iconfile': "assets/backprop_playground.png",
