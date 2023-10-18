@@ -12,7 +12,7 @@ APP = ["app.py"]
 DATA_FILES = ["assets", "data"]
 
 OPTIONS = {
-    'iconfile': "assets/backprop_playground.png",
+    'iconfile': "assets/bppg.png",
 }
 
 setup(

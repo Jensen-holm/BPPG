@@ -1,4 +1,3 @@
-import tkinter as tk
 from tkinter import messagebox
 import customtkinter as ctk
 import pandas as pd
@@ -24,13 +23,14 @@ ARGS = {
 
 # loading images
 upload = Image.open(os.path.join(ASSETS_DIR, "upload.png"))
-logo = Image.open(os.path.join(ASSETS_DIR, "backprop_playground.png"))
+logo = Image.open(os.path.join(ASSETS_DIR, "bppg.png"))
 plus = Image.open(os.path.join(ASSETS_DIR, "plus.png"))
 minus = Image.open(os.path.join(ASSETS_DIR, "minus.png"))
 
 LOGO_IMG = ctk.CTkImage(
     light_image=logo,
     dark_image=logo,
+    size=(400, 400),
 )
 
 UPLOAD_IMG = ctk.CTkImage(
@@ -64,14 +64,18 @@ class App(ctk.CTk):
         self.grid_columnconfigure((2, 3), weight=0)
         self.grid_rowconfigure((0, 1, 2), weight=1)
 
+        self.test_button = ctk.CTkButton(
+            master=self,
+            image=LOGO_IMG,
+            height=0,
+            width=0,
+            command=lambda:print(ARGS["data"]),
+            text="",
+        )
+
         self.csvs = self.csv_files()
         self.build_csv_upload_sidebar()
 
-        self.test_button = ctk.CTkButton(
-            master=self,
-            command=lambda:print(ARGS),
-        )
-        self.test_button.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
 
     """ CSV upload side bar """
@@ -112,7 +116,7 @@ class App(ctk.CTk):
         # upload new csv button
         self.upload_new_csv = ctk.CTkButton(
             master=self.sidebar_frame,
-            command=self.upload_new_csv,
+            command=lambda: self.upload_new_csv,
             image=PLUS,
             text="Upload New CSV",
         )
