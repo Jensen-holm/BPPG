@@ -57,6 +57,7 @@ class App(ctk.CTk):
         self.title("Backprop Playground")
         self.geometry(f"{1100}x{580}")
         self.minsize(width=600, height=300)
+        self.eval("tk::PlaceWindow . center")
 
         # configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
@@ -113,8 +114,6 @@ class App(ctk.CTk):
         # make 2 buttons for each csv, load() and remove()
         for i, csv in enumerate(self.csvs):
             i += 2
-
-            # label
             label = ctk.CTkLabel(
                 master=self.sidebar_frame,
                 text=csv,
@@ -150,6 +149,8 @@ class App(ctk.CTk):
         try:
             df = pd.read_csv(filename)
             ARGS["data"] = df
+            print(df.head())
+            self.update()
             return 
         except Exception as e:
             messagebox.showerror(
@@ -158,9 +159,11 @@ class App(ctk.CTk):
             )
             return
 
-    def remove_csv(self, filename):
+    def remove_csv(self, filename) -> None:
         filepath = os.path.join(DATA_DIR, filename)
-        os.rmdir(filepath)
+        os.remove(filepath)
+        self.update()
+        return
 
     
     def upload_new_csv(self) -> None:
@@ -178,14 +181,11 @@ class App(ctk.CTk):
         
         try: # try to read the csv file & save it to /data...
             df = pd.read_csv(file)
-
-            save_dir = os.path.join(os.getcwd(), "data")
-            os.makedirs(save_dir, exist_ok=True)  # ensure 'data' folder exists
-            save_path = os.path.join(save_dir, os.path.basename(file.name))
-            df.to_csv(save_path)
-
+            self.save_data(df, name=file.name)
             # if all was successful, use it!
             ARGS["data"] = df
+            print(ARGS["data"])
+            self.update()
             return
 
         except Exception as e:
@@ -194,6 +194,13 @@ class App(ctk.CTk):
                 message=e, # might want to make this more readable in the future
             )
             return
+
+    def save_data(self, df: pd.DataFrame, name: str) -> None:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        base_name = os.path.basename(name)
+        save_path = os.path.join(DATA_DIR, base_name)
+        df.to_csv(save_path)
+        return
 
 
 if __name__ == "__main__":
