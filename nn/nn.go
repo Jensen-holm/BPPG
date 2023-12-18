@@ -16,15 +16,23 @@ type NN struct {
 	HiddenSize     int      `json:"hidden_size"`
 	LearningRate   float64  `json:"learning_rate"`
 	ActivationFunc string   `json:"activation"`
-	Df             dataframe.DataFrame
+	Df             *dataframe.DataFrame
 }
 
 func NewNN(c *fiber.Ctx) (*NN, error) {
 	newNN := new(NN)
 	err := c.BodyParser(newNN)
 	if err != nil {
-		return nil, fmt.Errorf("invalid JSON data: %v", err)
+		return nil, fmt.Errorf("invalid JSON request: %v", err)
 	}
-	newNN.Df = dataframe.ReadCSV(strings.NewReader(newNN.CSVData))
+
+	csvReader := strings.NewReader(newNN.CSVData)
+	df := dataframe.ReadCSV(csvReader)
+
+	if df.Nrow() == 0 || df.Ncol() == 0 {
+		return nil, fmt.Errorf("empty csv_data sent: %v", err)
+	}
+
+	newNN.Df = &df
 	return newNN, nil
 }
