@@ -20,6 +20,7 @@ func main() {
 			return c.Status(fiber.StatusBadRequest).JSON(
 				fiber.Map{"error": err})
 		}
+
 		return c.SendString("neural network instance created sucessfully")
 	})
 

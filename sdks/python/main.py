@@ -1,10 +1,14 @@
-import io
-import requests
 import pandas as pd
+import requests
+import os
+import io
+
+
+IRIS_PATH = "../data/iris.csv"
 
 
 if __name__ == "__main__":
-    df = pd.read_csv("../data/iris.csv")
+    df = pd.read_csv(IRIS_PATH)
     
     features = ["sepal length", "petal width"]
     response = "species"
@@ -22,7 +26,6 @@ if __name__ == "__main__":
         "activation": "tanh",
         "csv_data": csv_string.getvalue(),
     }
-
 
     response = requests.post(
         "http://127.0.0.1:3000/neural-network",

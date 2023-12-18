@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Jensen-holm/ml-from-scratch/model"
 	"github.com/go-gota/gota/dataframe"
 	"github.com/gofiber/fiber/v2"
 )
 
 type NN struct {
+	model.Model
 	CSVData        string   `json:"csv_data"`
 	Features       []string `json:"features"`
 	Target         string   `json:"target"`
