@@ -4,7 +4,7 @@ import os
 import io
 
 
-IRIS_PATH = "../data/iris.csv"
+IRIS_PATH = os.path.join("..", "data", "iris.csv")
 
 
 if __name__ == "__main__":
