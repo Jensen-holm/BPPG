@@ -135,12 +135,20 @@ class NN:
         wh_prime = np.dot(X_train.T, error_hidden) * self.learning_rate
         bh_prime = np.sum(error_hidden, axis=0, keepdims=True) * self.learning_rate
 
-        # Gradient clipping to prevent overflow
-        max_norm = 1.0  # this is an adjustable threshold
-        wo_prime = np.clip(wo_prime, -max_norm, max_norm)
-        bo_prime = np.clip(bo_prime, -max_norm, max_norm)
-        wh_prime = np.clip(wh_prime, -max_norm, max_norm)
-        bh_prime = np.clip(bh_prime, -max_norm, max_norm)
+        def _clip_gradients(max_norm: float) -> None:
+            """
+            clips each weight or bias matrix in the list of weights and biases in place
+            in order to make sure we do not run into exploding gradients.
+            """
+            for grad in [wo_prime, bo_prime, wh_prime, bh_prime]:
+                _ = np.clip(
+                    grad,
+                    -max_norm,
+                    max_norm,
+                    out=grad,
+                )
+
+        _ = _clip_gradients(max_norm=1.0)
 
         # Update weights and biases
         self._wo -= wo_prime
